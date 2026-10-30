@@ -1,0 +1,15 @@
+113e414b079d450a06c1a52b9647533e  VERSION
+c17f5de2b3f2368db9177b7de7a3d2bf  metadata.yaml
+1eb02c83a23e47d5c0834760547f4964  data/distance-matrix.tsv
+113e414b079d450a06c1a52b9647533e  provenance/VERSION
+145bb39e5f8134c398c37515ea643c2b  provenance/citations.bib
+c17f5de2b3f2368db9177b7de7a3d2bf  provenance/metadata.yaml
+15af4a5ab40e0662ef59df8d4dbdcb44  provenance/action/action.yaml
+113e414b079d450a06c1a52b9647533e  provenance/artifacts/75cc51d5-438d-4849-868d-0a2875e63399/VERSION
+487a7aa0168d6605a057ff0d1de7cc81  provenance/artifacts/75cc51d5-438d-4849-868d-0a2875e63399/citations.bib
+075791be1b49500ca6b6ae4fa0fb38f5  provenance/artifacts/75cc51d5-438d-4849-868d-0a2875e63399/metadata.yaml
+9719fc52f20ff6c8593e7ea1f53d7a13  provenance/artifacts/75cc51d5-438d-4849-868d-0a2875e63399/action/action.yaml
+113e414b079d450a06c1a52b9647533e  provenance/artifacts/fc5b0a45-219b-4ff6-9f1b-8e3a56d0c118/VERSION
+e7ef6d6bc594cdd3c40ff7c30d18c391  provenance/artifacts/fc5b0a45-219b-4ff6-9f1b-8e3a56d0c118/citations.bib
+75d1f4194778f62b9828eb5756b6de97  provenance/artifacts/fc5b0a45-219b-4ff6-9f1b-8e3a56d0c118/metadata.yaml
+ebd082d9941d12880b4b174db657d48a  provenance/artifacts/fc5b0a45-219b-4ff6-9f1b-8e3a56d0c118/action/action.yaml
