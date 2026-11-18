@@ -25,7 +25,7 @@ Run `notebooks/general.ipynb` first. It loads shared data and imports the common
 - `part3_persistence.ipynb` - persistence analysis
 - `part4_mixed_signal.ipynb` - mixed-signal analysis
 - `part5_cross_year.ipynb` - cross-year generalization analysis
-- `part6_openset.ipynb` - paired 10-person training sets (scheme B only), with present/absent searches and predictive Shannon entropy; see [the current B methods and results](results/part6-openset/scheme-B-only/README.md). The earlier [A/B comparison](results/part6-openset/comparison-A-B/README.md) is archived.
+- `part6_openset.ipynb` - paired 10-person open-set analysis: present/absent searches, CCR-FPIR curves, per-material threshold rates, uncertainty and predictive Shannon entropy
 
 ## External Pipelines
 
