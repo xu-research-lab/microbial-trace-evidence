@@ -4,3 +4,4 @@ __pycache__/
 results/cache/
 results/cache.tar.gz
 tmp_*.md
+CCR_FPIR_probability_threshold_guide_zh.md
