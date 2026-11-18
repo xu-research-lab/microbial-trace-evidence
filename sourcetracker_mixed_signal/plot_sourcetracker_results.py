@@ -13,7 +13,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
-BASE = '../'
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT_DIR = os.path.join(BASE, 'sourcetracker_mixed_signal')
 ST2_OUTPUT = os.path.join(OUT_DIR, 'st2_output')
 
@@ -102,12 +102,15 @@ def main():
     for st in surf_types:
         surf_samples[st] = [s for s in sink_mp.index if s in md.index and md.loc[s, 'surface_type'] == st]
     
-    # Calculate width ratios (avoid zero width if a category is empty)
-    widths = [max(1, len(surf_samples[st])) for st in surf_types]
-    
-    # Create a single figure with 2 subplots (facets), sharing the Y-axis
-    fig1, axes = plt.subplots(1, 2, figsize=(5.5, 2), 
-                              sharey=True, gridspec_kw={'width_ratios': widths,'wspace': 0.05})
+    # Stack the two materials to use the lower-left panel's vertical space.
+    fig1, axes = plt.subplots(2, 1, figsize=(5.5, 6.5),
+                              sharey=True, gridspec_kw={'hspace': 0.38})
+
+    # Match the axes and tick widths used in panels A and B.
+    for ax in axes:
+        for spine in ax.spines.values():
+            spine.set_linewidth(1.25)
+        ax.tick_params(axis='both', which='both', width=1.25)
 
     for ax, surf_type in zip(axes, surf_types):
         surf_ids = surf_samples[surf_type]
@@ -164,25 +167,23 @@ def main():
         ax.set_title(f'{surf_type.capitalize()}')
         ax.set_ylim(0, 1)
         
-        # Only set Y label on the leftmost facet
-        if ax == axes[0]:
-            ax.set_ylabel('Proportion')
+        ax.set_ylabel('Proportion')
 
     # Add a single main title and place the legend outside the overall plot
     handles, labels = axes[0].get_legend_handles_labels()
-    num_labels = len(labels)
-    fig1.legend(
+    legend = fig1.legend(
         handles, 
         labels, 
         loc='lower center',          
-        bbox_to_anchor=(0.5, -0.4),   
-        ncol=num_labels,             
+        bbox_to_anchor=(0.55, 0.01),
+        ncol=4,
         fontsize=9,             
         handlelength=1.2,            
         handletextpad=0.5,           
-        columnspacing=1.5           
+        columnspacing=1.2
     )
-    plt.tight_layout()
+    legend.get_frame().set_linewidth(1.25)
+    fig1.subplots_adjust(left=0.14, right=0.98, top=0.95, bottom=0.16)
 
     # Save the faceted figure
     fname_stacked = 'sourcetracker_stacked_bar_faceted'

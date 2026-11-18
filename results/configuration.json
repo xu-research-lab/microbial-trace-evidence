@@ -1,0 +1,13 @@
+{
+  "version": "paired-ab-v1",
+  "data_signature": "097b8536788cee04b290d67b004ff637",
+  "R": 20,
+  "K": 10,
+  "candidate_seed": 20261108,
+  "RF_PARAMS": {
+    "n_estimators": 500,
+    "oob_score": true,
+    "random_state": 11,
+    "n_jobs": 1
+  }
+}

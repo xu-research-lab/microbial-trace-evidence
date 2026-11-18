@@ -1,0 +1,7 @@
+protocol,description,tau,CCR,FPIR
+paired,Candidate-only top-1: 10 paired classes,0.0,0.5651193633952255,1.0
+paired,Candidate-only top-1: 10 paired classes,0.05,0.5651193633952255,1.0
+paired,Candidate-only top-1: 10 paired classes,0.1,0.5651193633952255,1.0
+paired,Candidate-only top-1: 10 paired classes,0.2,0.5457559681697612,0.8263262599469496
+paired,Candidate-only top-1: 10 paired classes,0.3,0.3705570291777188,0.29423076923076924
+paired,Candidate-only top-1: 10 paired classes,0.5,0.09416445623342175,0.017440318302387268

@@ -964,3 +964,178 @@ def plot_simulation_heatmap(data, title='TOP-N Accuracy', ax=None,
     cbar = ax.collections[0].colorbar
     cbar.ax.set_title('Accuracy', fontsize=fontsize)
     return ax
+
+
+def plot_mixed_signal_transfer_by_material(
+    d_dist,
+    paired_samples,
+    train_md,
+    distance_permute_test_fn,
+    metric_label,
+    mat_order=('ceramic', 'plastic'),
+    group_order=('1st subject', '2nd subject', 'Others'),
+    group_colors=('#d62728', '#1f77b4', '#7f7f7f'),
+    permutations=2000,
+    figsize=(5, 3),
+    ax=None,
+):
+    """Plot mixed-signal transfer distances by material and subject order.
+
+    Parameters
+    ----------
+    d_dist : DistanceMatrix-like
+        Distance matrix supporting ``d_dist[sample1, sample2]`` indexing.
+    paired_samples : experiment-like
+        Object with ``sample_metadata`` describing mixed-signal surface samples.
+    train_md : pandas.DataFrame
+        Training metadata containing skin samples.
+    distance_permute_test_fn : callable
+        Function with signature ``fn(d_dist, group1, group2, statistic=...,
+        permutations=...)`` returning at least ``(p_value, statistic, ...)``.
+    metric_label : str
+        Label used for printed summaries and y-axis title.
+    mat_order : sequence, optional
+        Surface type order.
+    group_order : sequence, optional
+        Subject-order grouping for the hue dimension.
+    group_colors : sequence, optional
+        Colors matching ``group_order``.
+    permutations : int, optional
+        Number of permutations for pairwise tests.
+    figsize : tuple, optional
+        Figure size if ``ax`` is None.
+    ax : matplotlib.axes.Axes, optional
+        Existing axes to draw on.
+
+    Returns
+    -------
+    tuple
+        ``(chrono_df, pairwise_results, fig, ax)``.
+    """
+    chrono_data = []
+    for sid, row in paired_samples.sample_metadata.iterrows():
+        surface_type = row['surface_type']
+        first_subj = row['pair1_resident']
+        second_subj = row['pair2_perp']
+
+        first_skin = train_md.query(
+            'individual == @first_subj & sample_type == "skin"'
+        ).index.unique()
+        second_skin = train_md.query(
+            'individual == @second_subj & sample_type == "skin"'
+        ).index.unique()
+        other_skin = train_md.query(
+            'individual not in [@first_subj, @second_subj] & sample_type == "skin"'
+        ).index.unique()
+
+        group_to_skin = {
+            '1st subject': first_skin,
+            '2nd subject': second_skin,
+            'Others': other_skin,
+        }
+
+        for group_name, skin_ids in group_to_skin.items():
+            for s_skin in skin_ids:
+                try:
+                    dist = d_dist[sid, s_skin]
+                    chrono_data.append({
+                        'surface_type': surface_type,
+                        'comparison_type': group_name,
+                        'distance': dist,
+                        's1': sid,
+                        's2': s_skin,
+                    })
+                except KeyError:
+                    pass
+
+    chrono_df = pd.DataFrame(chrono_data)
+
+    pairwise_results = {}
+    for mat in mat_order:
+        mat_df = chrono_df[chrono_df['surface_type'] == mat]
+        groups = {
+            g: mat_df[mat_df['comparison_type'] == g][['s1', 's2']].values.tolist()
+            for g in group_order
+        }
+        pairwise_results[mat] = {}
+        print(f"\n=== {metric_label} {mat} ===")
+        for i in range(len(group_order)):
+            for j in range(i + 1, len(group_order)):
+                g1, g2 = group_order[i], group_order[j]
+                p_val, stat, _ = distance_permute_test_fn(
+                    d_dist,
+                    groups[g1],
+                    groups[g2],
+                    statistic='median',
+                    permutations=permutations,
+                )
+                stars = get_significance_stars(p_val)
+                pairwise_results[mat][(g1, g2)] = (p_val, stat, stars)
+                print(f"  {g1} vs {g2}: p={p_val:.4f}, stat={stat:.4f} {stars}")
+
+    if ax is None:
+        fig, ax = plt.subplots(figsize=figsize)
+    else:
+        fig = ax.figure
+
+    init_plot_style()
+    sns.boxplot(
+        x='surface_type', y='distance', hue='comparison_type',
+        data=chrono_df, order=mat_order, hue_order=group_order,
+        palette=group_colors, ax=ax, showfliers=False
+    )
+
+    black_palette = ['black'] * len(group_order)
+    sns.stripplot(
+        x='surface_type', y='distance', hue='comparison_type',
+        data=chrono_df, order=mat_order, hue_order=group_order,
+        dodge=True, palette=black_palette,
+        alpha=0.2, jitter=0.1, size=2, ax=ax
+    )
+
+    y_max_data = chrono_df['distance'].max()
+    bracket_base = y_max_data + 0.01
+    bracket_step = 0.035
+    n_hue = len(group_order)
+    dodge_w = 0.6 / n_hue
+    hue_offsets = (np.arange(n_hue) - (n_hue - 1) / 2) * dodge_w
+
+    for mat_idx, mat in enumerate(mat_order):
+        sig_pairs = [
+            (g1, g2) for (g1, g2) in pairwise_results[mat]
+            if pairwise_results[mat][(g1, g2)][2]
+        ]
+        for b_idx, (g1, g2) in enumerate(sig_pairs):
+            _, _, stars = pairwise_results[mat][(g1, g2)]
+            g1_idx = group_order.index(g1)
+            g2_idx = group_order.index(g2)
+            x1 = mat_idx + hue_offsets[g1_idx]
+            x2 = mat_idx + hue_offsets[g2_idx]
+            y = bracket_base + bracket_step * b_idx
+            tick_h = 0.008
+
+            ax.plot([x1, x1, x2, x2], [y, y + tick_h, y + tick_h, y],
+                    lw=0.8, c='black')
+            ax.text((x1 + x2) / 2, y + tick_h + 0.002, stars,
+                    ha='center', va='bottom', fontsize=9, color='black')
+
+    ax.set_xlabel('Surface Type', fontsize=12)
+    ax.set_ylabel(f'{metric_label} Distance', fontsize=11)
+    ax.set_xticklabels(
+        [label.get_text().capitalize() for label in ax.get_xticklabels()],
+        fontsize=11
+    )
+
+    handles, labels = ax.get_legend_handles_labels()
+    ax.legend(handles[:n_hue], labels[:n_hue], title='Subject Order',
+              loc='upper left', bbox_to_anchor=(1.02, 1),
+              frameon=True, fontsize=8.5)
+
+    max_lines = max(
+        len([key for key in pairwise_results[m] if pairwise_results[m][key][2]])
+        for m in mat_order
+    )
+    ax.set_ylim(top=y_max_data + bracket_step * (max_lines + 1) + 0.02)
+
+    plt.tight_layout()
+    return chrono_df, pairwise_results, fig, ax

@@ -1,3 +1,6 @@
 __pycache__/
 *.py[cod]
 .ipynb_checkpoints/
+results/cache/
+results/cache.tar.gz
+tmp_*.md

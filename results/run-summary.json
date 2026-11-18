@@ -1,0 +1,13 @@
+{
+  "query_people": 52,
+  "touched_queries": 754,
+  "present_searches": 15080,
+  "absent_searches": 15080,
+  "top1_accuracy": 0.5651193633952255,
+  "K": 10,
+  "R": 20,
+  "training_classes": "10 present / 10 absent",
+  "score": "raw maximum probability among 10 candidates; no slice renormalization",
+  "threshold_selection": "none; descriptive curves only",
+  "uncertainty": "conditional on saved fitted models and sampled training/candidate groups"
+}
